@@ -6,7 +6,7 @@ import os
 from sqlalchemy_utils import create_database, database_exists
 from flask_migrate import Migrate
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="public", static_url_path="", template_folder="public")
 
 CORS(app)
 env = os.environ.get('FLASK_ENV', 'dev')

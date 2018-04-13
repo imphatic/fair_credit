@@ -1,19 +1,17 @@
 from src import app
-from flask import Blueprint
+from flask import Blueprint, render_template
 from src.models import Person
 from src.utils import create_response, serialize_list
 
 mod = Blueprint('main', __name__)
 
 
-# function that is called when you visit /
 @app.route('/')
 def index():
-    return '<h1>Hello Word!</h1>'
+    return render_template('index.html')
 
 
-# function that is called when you visit /persons
-@app.route('/persons')
+@app.route('/api/')
 def name():
     try:
         persons = Person.query.all()

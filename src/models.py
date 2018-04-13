@@ -30,3 +30,4 @@ class Email(Mixin, db.Model):
 
     def __repr__(self):
         return '<email {}>'.format(self.email)
+
