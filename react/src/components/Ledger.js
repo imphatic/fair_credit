@@ -40,14 +40,14 @@ export default class Ledger extends React.Component {
 class Row extends React.Component {
     render() {
         const data = this.props.data;
-        const style = (data.change > 0) ? 'success' : 'danger';
-        const op = (data.change > 0) ? '+' : '-';
+        const style = (data.type == 2) ? 'success' : 'danger';
+        const op = (data.type == 2) ? '+' : '-';
 
         return(
             <tr>
-              <td>{data.date}</td>
-              <td><Label bsStyle={style}>{op} ${data.change}</Label></td>
-              <td>${data.balance}</td>
+              <td>{data.date_time}</td>
+              <td><Label bsStyle={style}>{op} ${data.amount.toFixed(2)}</Label></td>
+              <td>${data.balance.toFixed(2)}</td>
             </tr>
         );
     }

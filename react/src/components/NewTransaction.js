@@ -1,5 +1,6 @@
 import React from "react";
 import { Panel, Grid, Row, Col, FormGroup, ControlLabel, FormControl, Button} from 'react-bootstrap';
+import axios from 'axios';
 
 export default class NewTransaction extends React.Component {
     constructor(props) {
@@ -7,16 +8,28 @@ export default class NewTransaction extends React.Component {
 
         this.state = {
             isSavingNewTransaction: false,
-            newTransaction: {},
+            newTransaction: {
+                'amount': null,
+                'type': null,
+                'date_time': null
+            },
             newTransactionErrors: {
                 'amount' : false,
                 'type'  : false,
-                'date'  : false
+                'date_time'  : false
             },
         };
 
         this.handleNewTransaction = this.handleNewTransaction.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
+        this.clearTransactionForm = this.clearTransactionForm.bind(this);
+    }
+
+    clearTransactionForm(e) {
+        this.setState({newTransaction: {
+            'amount': '',
+            'date_time': ''
+        }});
     }
 
     handleInputChange(e) {
@@ -48,9 +61,9 @@ export default class NewTransaction extends React.Component {
             newTransactionErrors['type'] = true;
         }
 
-        if(!this.state.newTransaction.date) {
+        if(!this.state.newTransaction.date_time) {
             pass = false;
-            newTransactionErrors['date'] = true;
+            newTransactionErrors['date_time'] = true;
         }
 
         this.setState(newTransactionErrors);
@@ -58,20 +71,27 @@ export default class NewTransaction extends React.Component {
 
         this.setState({ isSavingNewTransaction: true });
 
-        console.log(this.state.newTransaction);
-        setTimeout(() => {
-           //todo: replace timeout with XHR
-           if(this.props.successCallBack){
+        axios.post('//localhost:5000/api/transaction', {"data":this.state.newTransaction})
+          .then(res => {
+            if(typeof(res.data) !== undefined )
+            {
                 this.props.successCallBack();
-           }
-          this.setState({ isSavingNewTransaction: false });
-        }, 2000);
+                this.clearTransactionForm();
+            } else {
+                if(typeof(res.error) !== undefined)
+                {
+                    // here we would do some sort of error handling.
+                }
+            }
 
+            this.setState({ isSavingNewTransaction: false });
+          });
     }
 
     render() {
         const { isSavingNewTransaction } = this.state
         const { newTransactionErrors } = this.state
+        const { newTransaction } = this.state
 
         return (
             <Panel>
@@ -91,6 +111,7 @@ export default class NewTransaction extends React.Component {
                                             min="0.00"
                                             max="1000.00"
                                             step="any"
+                                            value={newTransaction.amount}
                                             onChange={this.handleInputChange}
                                          />
                                     </FormGroup>
@@ -111,11 +132,12 @@ export default class NewTransaction extends React.Component {
                                 </Col>
 
                                 <Col sm={3}>
-                                    <FormGroup validationState={newTransactionErrors.date ? 'error' : null}>
+                                    <FormGroup validationState={newTransactionErrors.date_time ? 'error' : null}>
                                         <ControlLabel>Date</ControlLabel>
                                         <FormControl
-                                            name="date"
+                                            name="date_time"
                                             type="date"
+                                            value={newTransaction.date_time}
                                             onChange={this.handleInputChange}
                                          />
                                      </FormGroup>

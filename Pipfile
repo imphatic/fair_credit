@@ -19,6 +19,7 @@ SQLAlchemy = "==1.1.14"
 Flask-Cors = "==3.0.3"
 flask-script = "*"
 sqlalchemy-utils = "*"
+simplejson = "==3.13.2"
 
 [dev-packages]
 "flake8" = "*"

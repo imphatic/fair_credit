@@ -1,0 +1,1 @@
+{"version":3,"sources":["index.css"],"names":[],"mappings":"AAAA,KACI,0DACA,eAAiB","file":"static/css/main.383a9d7f.css","sourcesContent":["body {\n    font: 14px/20px \"Helvetica\", \"Century Gothic\", Futura, sans-serif;\n    margin: 30px 15%;\n}\n\n\n\n\n// WEBPACK FOOTER //\n// ./src/index.css"],"sourceRoot":""}

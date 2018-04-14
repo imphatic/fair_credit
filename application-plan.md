@@ -12,13 +12,24 @@
 ------------------ | --- |
 | id               | |
 | type             | 1 = debit, 2 = credit, 3 = interest payment |
+| amount           | The amount credited or debited from the balance. |
 | balance          | YTD balance of the line of credit, without interest. |
-| change           | The amount credited or debited from the balance. |
-| date             | Date of the transaction. |
+| date_time        | Date of the transaction. |
 
 Special note about payments.  When a payment is made the balance of interest is paid first
 and it gets its own record in the database.  The record that follows would be the remaining
 amount that was paid on the principal.
+
+```
+CREATE TABLE transactions (
+    id          serial CONSTRAINT firstkey PRIMARY KEY,
+    type        INTEGER NOT NULL,
+    amount      DECIMAL NOT NULL,
+    balance     DECIMAL NOT NULL,
+    date_time   TIMESTAMP NOT NULL
+)
+```
+
 
 # API
 #### Overview
@@ -26,7 +37,7 @@ The API will make use of a REST implementation with a straightforward URI
 design.
 
 The API request and response will conform to the JSON API spec version 1.0.
-Each request and response will have the following basic JSON structure:
+All requests that have a body and  all responses will have the following basic JSON structure:
 ```
 {
     "data": {
@@ -40,15 +51,25 @@ inside the data object.
 
 #### Endpoints
 
-###### /api/transaction
-New/edit/delete a single transaction
+###### /api/transaction/(< id >)
+New/edit/delete/get a single transaction
 
 Example Request:
 ```
-// Edit transaction example
-"id":"4",
+// Get transaction (GET)
+/api/transaction/2
+
+// New transaction (POST)
 "amount":"-31.54",
-"date":"2018-04-14"
+"type":1,
+"date_time":"2018-04-14"
+
+// Edit transaction example (PUT)
+"id":"4",
+"amount":"-31.54"
+
+// Delete transaction (DELETE)
+/api/transaction/2
 ```
 
 
@@ -57,13 +78,12 @@ Example Response:
 // an empty data object if successful or an errors object if errors
 ```
 
-###### /api/ledger
+###### /api/ledger/< starting period >/< ending period >
 Summary of account activity including intrest accrued and principal balance.
 
-Example Request:
+Example Request
 ```
-"period_starting":"2018-04-01 12:00:00",
-"period_ending":"2018-04-14"
+/api/ledger/2018-04-01/2018-04-14
 ```
 
 Example Response:
@@ -75,15 +95,15 @@ Example Response:
       {
          "id":1,
          "type":1,
-         "date":"2018-04-04 05:15:13",
-         "change":-20.00,
+         "date_time":"2018-04-04 05:15:13",
+         "change":20.00,
          "balance":-185.23
       },
       {
          "id":1,
          "type":1,
-         "date":"2018-04-06 04:25:22",
-         "change":-40.00,
+         "date_time":"2018-04-06 04:25:22",
+         "change":40.00,
          "balance":-145.23
       }
    ]

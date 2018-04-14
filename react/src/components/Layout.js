@@ -2,32 +2,39 @@ import React from "react";
 import NewTransaction from './NewTransaction';
 import Ledger from './Ledger';
 import Balance from'./Balance';
+import axios from 'axios';
 
 export default class Layout extends React.Component {
     constructor(props) {
         super(props);
 
         this.getLedgerAndBalance = this.getLedgerAndBalance.bind(this);
+        this.getInterestAccrued = this.getInterestAccrued.bind(this);
+        this.getPrincipalBalance = this.getPrincipalBalance.bind(this);
 
         this.state = {
             interest: 8.59,
             balance: 208.59,
-            ledger : [
-                {
-                    date : '2018-04-04',
-                    change : -500.00,
-                    balance: 500.00
-                },
-                {
-                    date : '2018-04-08',
-                    change : 100.00,
-                    balance: 400.00
-                }
-            ]
+            ledger : []
         }
     }
 
+     componentDidMount() {
+        this.getLedgerAndBalance();
+     }
+
     getLedgerAndBalance() {
+        axios.get('//localhost:5000/api/ledger/2018-01-01/2018-05-01')
+          .then(res => {
+            this.setState({ ledger:res.data.data });
+          });
+    }
+
+    getInterestAccrued() {
+
+    }
+
+    getPrincipalBalance() {
 
     }
 
