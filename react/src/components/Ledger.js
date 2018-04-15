@@ -40,8 +40,8 @@ export default class Ledger extends React.Component {
 class Row extends React.Component {
     render() {
         const data = this.props.data;
-        const style = (data.type == 2) ? 'success' : 'danger';
-        const op = (data.type == 2) ? '+' : '-';
+        const style = (data.type === 2) ? 'success' : 'danger';
+        const op = (data.type === 2) ? '+' : '-';
 
         return(
             <tr>

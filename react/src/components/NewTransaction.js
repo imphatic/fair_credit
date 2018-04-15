@@ -28,6 +28,7 @@ export default class NewTransaction extends React.Component {
     clearTransactionForm(e) {
         this.setState({newTransaction: {
             'amount': '',
+            'type': 1,
             'date_time': ''
         }});
     }
@@ -95,7 +96,7 @@ export default class NewTransaction extends React.Component {
 
         return (
             <Panel>
-                <Panel.Heading>New Transaction</Panel.Heading>
+                <Panel.Heading>New Transaction (Make them oldest to newest)</Panel.Heading>
                 <Panel.Body>
                     <form>
                         <Grid>
@@ -126,7 +127,8 @@ export default class NewTransaction extends React.Component {
                                             onChange={this.handleInputChange}>
                                                <option value=''>Please Select</option>
                                                <option value="1">Withdraw</option>
-                                               <option value="2">Payment</option>
+                                               <option value="2">Principal Payment</option>
+                                               <option value="3">Interest Payment</option>
                                         </FormControl>
                                     </FormGroup>
                                 </Col>

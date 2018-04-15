@@ -13,8 +13,8 @@ export default class Layout extends React.Component {
         this.getPrincipalBalance = this.getPrincipalBalance.bind(this);
 
         this.state = {
-            interest: 8.59,
-            balance: 208.59,
+            interest: 0,
+            balance: 0,
             ledger : []
         }
     }
@@ -28,14 +28,22 @@ export default class Layout extends React.Component {
           .then(res => {
             this.setState({ ledger:res.data.data });
           });
+          this.getInterestAccrued();
+          this.getPrincipalBalance();
     }
 
     getInterestAccrued() {
-
+         axios.get('//localhost:5000/api/ledger/interest')
+          .then(res => {
+            this.setState({ interest:res.data.data });
+          });
     }
 
     getPrincipalBalance() {
-
+        axios.get('//localhost:5000/api/ledger/balance')
+          .then(res => {
+            this.setState({ balance:res.data.data });
+          });
     }
 
     render() {

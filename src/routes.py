@@ -36,15 +36,32 @@ def new_transaction():
     return jsonify({"data": transaction})
 
 
+@app.route('/api/transaction/<int:transaction_id>', methods=['PUT'])
+def edit_transaction(transaction_id):
+    data = dict(request.json['data'])
+    transaction = FairCredit.edit_transaction(transaction_id, data)
+    return jsonify({"data": transaction})
+
+
+@app.route('/api/transaction/<int:transaction_id>', methods=['DELETE'])
+def delete_transaction(transaction_id):
+    transaction = FairCredit.delete_transaction(transaction_id)
+    return jsonify({"data": transaction})
+
+
+@app.route('/api/ledger/balance', methods=['GET'])
+def get_balance():
+    return jsonify({"data": FairCredit.get_balance()})
+
+
+@app.route('/api/ledger/interest', methods=['GET'])
+def get_interest():
+    return jsonify({"data": FairCredit.get_interest()})
+
+
 @app.route('/api/ledger/<date_start>/<date_end>', methods=['GET'])
 def get_ledger(date_start, date_end):
 
     ledger = FairCredit.get_ledger(date_start, date_end)
 
     return jsonify({"data": ledger})
-
-
-
-
-
-#Next todo: implement interest accrude API and principal balance API responses.

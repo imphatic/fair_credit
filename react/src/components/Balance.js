@@ -9,8 +9,8 @@ export default class Balance extends React.Component {
                <Well bsSize="large">
                    <Grid>
                         <Row>
-                            <Col sm={4}><strong>Interest Accrued:</strong> ${this.props.interest} </Col>
-                            <Col sm={4}><strong>Principal Balance:</strong> ${this.props.balance}</Col>
+                            <Col sm={4}><strong>Interest Accrued:</strong> ${this.props.interest.toFixed(2)} </Col>
+                            <Col sm={4}><strong>Principal Balance:</strong> ${this.props.balance.toFixed(2)}</Col>
                         </Row>
                    </Grid>
                </Well>
