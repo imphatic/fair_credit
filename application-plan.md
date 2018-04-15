@@ -16,9 +16,6 @@
 | balance          | YTD balance of the line of credit, without interest. |
 | date_time        | Date of the transaction. |
 
-Special note about payments.  When a payment is made the balance of interest is paid first
-and it gets its own record in the database.  The record that follows would be the remaining
-amount that was paid on the principal.
 
 ```
 CREATE TABLE transactions (
@@ -65,7 +62,6 @@ Example Request:
 "date_time":"2018-04-14"
 
 // Edit transaction example (PUT)
-"id":"4",
 "amount":"-31.54"
 
 // Delete transaction (DELETE)
