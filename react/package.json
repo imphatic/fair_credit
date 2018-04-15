@@ -12,7 +12,7 @@
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "cp -r build/* ../src/public/",
-    "start": "react-scripts start",
+    "start": "react-scripts start --env=dev",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"

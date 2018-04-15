@@ -13,6 +13,7 @@ export default class Layout extends React.Component {
         this.getPrincipalBalance = this.getPrincipalBalance.bind(this);
 
         this.state = {
+            port:5000,
             interest: 0,
             balance: 0,
             ledger : []
@@ -20,11 +21,17 @@ export default class Layout extends React.Component {
     }
 
      componentDidMount() {
+        if (typeof window !== 'undefined') {
+            if (!process.env.NODE_ENV || process.env.NODE_ENV !== 'development') {
+                this.setState({port:window.location.port})
+            }
+        }
+
         this.getLedgerAndBalance();
      }
 
     getLedgerAndBalance() {
-        axios.get('//localhost:5000/api/ledger/2018-01-01/2018-05-01')
+        axios.get('//localhost:'+this.state.port+'/api/ledger/2018-01-01/2018-05-01')
           .then(res => {
             this.setState({ ledger:res.data.data });
           });
@@ -33,14 +40,14 @@ export default class Layout extends React.Component {
     }
 
     getInterestAccrued() {
-         axios.get('//localhost:5000/api/ledger/interest')
+         axios.get('//localhost:'+this.state.port+'/api/ledger/interest')
           .then(res => {
             this.setState({ interest:res.data.data });
           });
     }
 
     getPrincipalBalance() {
-        axios.get('//localhost:5000/api/ledger/balance')
+        axios.get('//localhost:'+this.state.port+'/api/ledger/balance')
           .then(res => {
             this.setState({ balance:res.data.data });
           });
@@ -50,7 +57,7 @@ export default class Layout extends React.Component {
         return (
             <div>
                 <h1>Fair Credit</h1>
-                <NewTransaction successCallBack={() => this.getLedgerAndBalance()} />
+                <NewTransaction successCallBack={() => this.getLedgerAndBalance()} port={this.state.port} />
                 <Ledger ledger={this.state.ledger} />
                 <Balance interest={this.state.interest} balance={this.state.balance} />
             </div>

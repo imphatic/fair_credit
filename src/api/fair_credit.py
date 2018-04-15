@@ -14,8 +14,9 @@ class FairCredit:
         pass
 
     @staticmethod
-    def get_transaction():
-        pass
+    def get_transaction(transaction_id):
+        transaction = Transactions.query.get(transaction_id)
+        return transaction.to_dict() if transaction is not None else None
 
     @staticmethod
     def new_transaction(transaction_type, amount, date_time=None):
