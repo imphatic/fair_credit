@@ -3,7 +3,7 @@ A demo line of credit product using: React, Python, Flask, Postgres, Docker
 
 #### Notes for the application
  * Transactions should be made from oldest to newest.
- * The backend in in /src
+ * The backend is in /src
  * The frontend is in /react/src
  * Note the application-plan.md file for more specific details.
 

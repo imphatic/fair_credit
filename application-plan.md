@@ -2,7 +2,6 @@
    * https://github.com/wearefair/interview/tree/master/engineering
    * https://react-bootstrap.github.io
    * http://flask.pocoo.org/docs/0.12/quickstart/#routing
-   * https://www.programiz.com/python-programming/dictionary
    * http://jsonapi.org/format/
 
 
