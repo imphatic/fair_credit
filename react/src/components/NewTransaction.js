@@ -72,7 +72,7 @@ export default class NewTransaction extends React.Component {
 
         this.setState({ isSavingNewTransaction: true });
 
-        axios.post('//localhost:'+this.props.port+'/api/transaction', {"data":this.state.newTransaction})
+        axios.post('//'+this.props.hostname+':'+this.props.port+'/api/transaction', {"data":this.state.newTransaction})
           .then(res => {
             if(typeof(res.data) !== undefined )
             {

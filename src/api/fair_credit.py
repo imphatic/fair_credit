@@ -101,7 +101,7 @@ class FairCredit:
             db.session.delete(transaction)
             db.session.commit()
             return {}
-        
+
         except exc.SQLAlchemyError:
             return {'errors': 'Database error.'}
 
@@ -150,10 +150,10 @@ class FairCredit:
 
         if last_interest_payment is None:
             # get all transactions
-             transactions = Transactions.query.order_by(Transactions.date_time).all()
+            transactions = Transactions.query.order_by(Transactions.date_time).all()
         else:
             # get all transactions past the latest interest payment
-             transactions = Transactions.query.filter(Transactions.date_time >= last_interest_payment.date_time).order_by(Transactions.date_time).all()
+            transactions = Transactions.query.filter(Transactions.date_time >= last_interest_payment.date_time).order_by(Transactions.date_time).all()
 
         interest = 0.0
         apr_per_day = FairCredit.apr/365

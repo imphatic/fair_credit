@@ -12,6 +12,7 @@ export default class Layout extends React.Component {
 
         this.state = {
             port:5000,
+            hostname:window.location.hostname,
             interest: 0,
             balance: 0,
             ledger : []
@@ -29,7 +30,7 @@ export default class Layout extends React.Component {
      }
 
     getLedgerAndBalance() {
-        axios.get('//localhost:'+this.state.port+'/api/ledger/2018-01-01/2018-06-01')
+        axios.get('//'+this.state.hostname+':'+this.state.port+'/api/ledger/2018-01-01/2018-06-01')
           .then(res => {
             this.setState({
                 ledger:res.data.data.transactions,
@@ -43,7 +44,10 @@ export default class Layout extends React.Component {
         return (
             <div>
                 <h1>Fair Credit</h1>
-                <NewTransaction successCallBack={() => this.getLedgerAndBalance()} port={this.state.port} />
+                <NewTransaction
+                    successCallBack={() => this.getLedgerAndBalance()}
+                    port={this.state.port}
+                    hostname={this.state.hostname} />
                 <Ledger ledger={this.state.ledger} />
                 <Balance interest={this.state.interest} balance={this.state.balance} />
             </div>
