@@ -53,6 +53,7 @@ class FairCredit:
         try:
             db.session.commit()
             return {}
+
         except exc.SQLAlchemyError:
             return {'errors': 'Database error.'}
 
@@ -66,23 +67,24 @@ class FairCredit:
         :return: empty dict or errors
         """
 
-        transaction = Transactions.query.get(transaction_id)
-
-        if 'type' in updates:
-            transaction.type = int(updates['type'])
-
-        if 'amount' in updates:
-            transaction.amount = float(updates['amount'])
-
-        if 'balance' in updates:
-            transaction.balance = float(updates['balance'])
-
-        if 'date_time' in updates:
-            transaction.date_time = updates['date_time']
-
         try:
+            transaction = Transactions.query.get(transaction_id)
+
+            if 'type' in updates:
+                transaction.type = int(updates['type'])
+
+            if 'amount' in updates:
+                transaction.amount = float(updates['amount'])
+
+            if 'balance' in updates:
+                transaction.balance = float(updates['balance'])
+
+            if 'date_time' in updates:
+                transaction.date_time = updates['date_time']
+
             db.session.commit()
             return {}
+
         except exc.SQLAlchemyError:
             return {'errors': 'Database error.'}
 
@@ -94,12 +96,12 @@ class FairCredit:
         :return: empty dict or errors
         """
 
-        transaction = Transactions.query.get(transaction_id)
-        db.session.delete(transaction)
-
         try:
+            transaction = Transactions.query.get(transaction_id)
+            db.session.delete(transaction)
             db.session.commit()
             return {}
+        
         except exc.SQLAlchemyError:
             return {'errors': 'Database error.'}
 
