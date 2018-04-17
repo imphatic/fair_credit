@@ -9,8 +9,6 @@ export default class Layout extends React.Component {
         super(props);
 
         this.getLedgerAndBalance = this.getLedgerAndBalance.bind(this);
-        this.getInterestAccrued = this.getInterestAccrued.bind(this);
-        this.getPrincipalBalance = this.getPrincipalBalance.bind(this);
 
         this.state = {
             port:5000,
@@ -31,25 +29,13 @@ export default class Layout extends React.Component {
      }
 
     getLedgerAndBalance() {
-        axios.get('//localhost:'+this.state.port+'/api/ledger/2018-01-01/2018-05-01')
+        axios.get('//localhost:'+this.state.port+'/api/ledger/2018-01-01/2018-06-01')
           .then(res => {
-            this.setState({ ledger:res.data.data });
-          });
-          this.getInterestAccrued();
-          this.getPrincipalBalance();
-    }
-
-    getInterestAccrued() {
-         axios.get('//localhost:'+this.state.port+'/api/ledger/interest')
-          .then(res => {
-            this.setState({ interest:res.data.data });
-          });
-    }
-
-    getPrincipalBalance() {
-        axios.get('//localhost:'+this.state.port+'/api/ledger/balance')
-          .then(res => {
-            this.setState({ balance:res.data.data });
+            this.setState({
+                ledger:res.data.data.transactions,
+                interest:res.data.data.interest,
+                balance:res.data.data.balance
+                });
           });
     }
 

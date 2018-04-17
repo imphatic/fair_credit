@@ -63,4 +63,8 @@ def get_interest():
 @app.route('/api/ledger/<date_start>/<date_end>', methods=['GET'])
 @json_api_response()
 def get_ledger(date_start, date_end):
-    return FairCredit.get_ledger(date_start, date_end)
+    return {
+        'transactions': FairCredit.get_ledger(date_start, date_end),
+        'interest': FairCredit.get_interest(),
+        'balance': FairCredit.get_balance()
+    }

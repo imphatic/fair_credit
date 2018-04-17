@@ -1,9 +1,8 @@
 from src import app, db
+from sqlalchemy import exc
 from src.models import Transactions
 from datetime import datetime
 from time import time
-
-import sys # print('hey!', file=sys.stderr)
 
 
 class FairCredit:
@@ -15,11 +14,25 @@ class FairCredit:
 
     @staticmethod
     def get_transaction(transaction_id):
+        """
+        Get an existing transaction
+        :param transaction_id: transaction id to retrieve
+        :return: dict keyed with database columns
+        """
+
         transaction = Transactions.query.get(transaction_id)
         return transaction.to_dict() if transaction is not None else None
 
     @staticmethod
     def new_transaction(transaction_type, amount, date_time=None):
+        """
+        Create a new transaction.
+        :param transaction_type: 1 = debit, 2 = credit, 3 = interest payment
+        :param amount: amount of the transaction
+        :param date_time: date the transaction occurred
+        :return: empty dict or errors
+        """
+
         transaction_type = int(transaction_type)
         amount = float(amount)
 
@@ -36,12 +49,23 @@ class FairCredit:
 
         transaction = Transactions(transaction_type, amount, balance, date_time)
         db.session.add(transaction)
-        db.session.commit()
 
-        return {}
+        try:
+            db.session.commit()
+            return {}
+        except exc.SQLAlchemyError:
+            return {'errors': 'Database error.'}
+
 
     @staticmethod
     def edit_transaction(transaction_id, updates):
+        """
+        Edit a transaction
+        :param transaction_id: id of the transaction to edit
+        :param updates: dictionary keyed with database columns with changes as values
+        :return: empty dict or errors
+        """
+
         transaction = Transactions.query.get(transaction_id)
 
         if 'type' in updates:
@@ -56,21 +80,38 @@ class FairCredit:
         if 'date_time' in updates:
             transaction.date_time = updates['date_time']
 
-        db.session.commit()
-
-        return {}
+        try:
+            db.session.commit()
+            return {}
+        except exc.SQLAlchemyError:
+            return {'errors': 'Database error.'}
 
     @staticmethod
     def delete_transaction(transaction_id):
+        """
+        Remove a transaction
+        :param transaction_id: id of the transaction to delete
+        :return: empty dict or errors
+        """
+
         transaction = Transactions.query.get(transaction_id)
         db.session.delete(transaction)
-        db.session.commit()
 
-        return {}
+        try:
+            db.session.commit()
+            return {}
+        except exc.SQLAlchemyError:
+            return {'errors': 'Database error.'}
 
     @staticmethod
     def balance_after_interest_payment(amount):
-        # if the interest payment made is less than the interest owed then the difference is added to the balance
+        """
+        returns the balance after an interest payment is made
+        if the interest payment made is less than the interest owed then the difference is added to the balance
+        :param amount: amount of interest paid
+        :return: balance
+        """
+
         interest_owed = FairCredit.get_interest()
         balance = FairCredit.get_balance()
 
@@ -80,6 +121,11 @@ class FairCredit:
 
     @staticmethod
     def get_balance():
+        """
+        get the current balance
+        :return: balance
+        """
+
         # get the most recent transaction
         transaction = Transactions.query.order_by(Transactions.date_time.desc()).first()
 
@@ -92,6 +138,11 @@ class FairCredit:
 
     @staticmethod
     def get_interest():
+        """
+        Get the current interest owed
+        :return: interest
+        """
+
         # Find the last interest payment (if it exists)
         last_interest_payment = Transactions.query.filter(Transactions.type == 3).order_by(Transactions.date_time.desc()).first()
 
@@ -123,9 +174,14 @@ class FairCredit:
 
         return float(interest)
 
-
     @staticmethod
     def get_ledger(date_start, date_end):
+        """
+        Get transactions
+        :param date_start: beginning date range to include in transaction list
+        :param date_end: ending date range to include in transactions list
+        :return: dict of transactions
+        """
 
         date_start += ' 00:00:00'
         date_end += ' 11:59:59'
