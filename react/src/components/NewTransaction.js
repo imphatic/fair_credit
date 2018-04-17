@@ -9,9 +9,9 @@ export default class NewTransaction extends React.Component {
         this.state = {
             isSavingNewTransaction: false,
             newTransaction: {
-                'amount': null,
-                'type': null,
-                'date_time': null
+                'amount': '',
+                'type': '',
+                'date_time': ''
             },
             newTransactionErrors: {
                 'amount' : false,

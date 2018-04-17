@@ -6,6 +6,8 @@ from src.decorators import json_api_response
 
 mod = Blueprint('main', __name__)
 
+fair_credit_api = FairCredit(.35)
+
 
 @app.route('/')
 def index():
@@ -28,7 +30,7 @@ def get_transaction(transaction_id):
 def new_transaction():
     data = request.json['data']
     date_time = data['date_time'] if 'date_time' in data else None
-    transaction = FairCredit.new_transaction(data['type'], data['amount'], date_time)
+    transaction = fair_credit_api.new_transaction(data['type'], data['amount'], date_time)
 
     return transaction
 
@@ -37,27 +39,27 @@ def new_transaction():
 @json_api_response()
 def edit_transaction(transaction_id):
     data = dict(request.json['data'])
-    transaction = FairCredit.edit_transaction(transaction_id, data)
+    transaction = fair_credit_api.edit_transaction(transaction_id, data)
     return transaction
 
 
 @app.route('/api/transaction/<int:transaction_id>', methods=['DELETE'])
 @json_api_response()
 def delete_transaction(transaction_id):
-    transaction = FairCredit.delete_transaction(transaction_id)
+    transaction = fair_credit_api.delete_transaction(transaction_id)
     return transaction
 
 
 @app.route('/api/ledger/balance', methods=['GET'])
 @json_api_response()
 def get_balance():
-    return FairCredit.get_balance()
+    return fair_credit_api.get_balance()
 
 
 @app.route('/api/ledger/interest', methods=['GET'])
 @json_api_response()
 def get_interest():
-    return FairCredit.get_interest()
+    return fair_credit_api.get_interest()
 
 
 @app.route('/api/ledger/<date_start>/<date_end>', methods=['GET'])
@@ -65,6 +67,6 @@ def get_interest():
 def get_ledger(date_start, date_end):
     return {
         'transactions': FairCredit.get_ledger(date_start, date_end),
-        'interest': FairCredit.get_interest(),
-        'balance': FairCredit.get_balance()
+        'interest': fair_credit_api.get_interest(),
+        'balance': fair_credit_api.get_balance()
     }

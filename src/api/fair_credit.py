@@ -7,9 +7,8 @@ from time import time
 
 class FairCredit:
 
-    apr = .35
-
-    def __init__(self):
+    def __init__(self, apr):
+        self.apr = apr
         pass
 
     @staticmethod
@@ -23,8 +22,7 @@ class FairCredit:
         transaction = Transactions.query.get(transaction_id)
         return transaction.to_dict() if transaction is not None else None
 
-    @staticmethod
-    def new_transaction(transaction_type, amount, date_time=None):
+    def new_transaction(self, transaction_type, amount, date_time=None):
         """
         Create a new transaction.
         :param transaction_type: 1 = debit, 2 = credit, 3 = interest payment
@@ -36,14 +34,14 @@ class FairCredit:
         transaction_type = int(transaction_type)
         amount = float(amount)
 
-        balance = FairCredit.get_balance()
+        balance = self.get_balance()
 
         if transaction_type == 1:
             balance -= amount
         elif transaction_type == 2:
             balance += amount
         elif transaction_type == 3:
-            balance = FairCredit.balance_after_interest_payment(amount)
+            balance = self.balance_after_interest_payment(amount)
 
         date_time = datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S') if date_time is None else date_time
 
@@ -58,8 +56,7 @@ class FairCredit:
             return {'errors': 'Database error.'}
 
 
-    @staticmethod
-    def edit_transaction(transaction_id, updates):
+    def edit_transaction(self, transaction_id, updates):
         """
         Edit a transaction
         :param transaction_id: id of the transaction to edit
@@ -88,7 +85,6 @@ class FairCredit:
         except exc.SQLAlchemyError:
             return {'errors': 'Database error.'}
 
-    @staticmethod
     def delete_transaction(transaction_id):
         """
         Remove a transaction
@@ -105,8 +101,7 @@ class FairCredit:
         except exc.SQLAlchemyError:
             return {'errors': 'Database error.'}
 
-    @staticmethod
-    def balance_after_interest_payment(amount):
+    def balance_after_interest_payment(self, amount):
         """
         returns the balance after an interest payment is made
         if the interest payment made is less than the interest owed then the difference is added to the balance
@@ -114,15 +109,14 @@ class FairCredit:
         :return: balance
         """
 
-        interest_owed = FairCredit.get_interest()
-        balance = FairCredit.get_balance()
+        interest_owed = self.get_interest()
+        balance = self.get_balance()
 
         balance += interest_owed - amount
 
         return balance
 
-    @staticmethod
-    def get_balance():
+    def get_balance(self):
         """
         get the current balance
         :return: balance
@@ -138,8 +132,7 @@ class FairCredit:
 
         return float(balance)
 
-    @staticmethod
-    def get_interest():
+    def get_interest(self):
         """
         Get the current interest owed
         :return: interest
@@ -156,7 +149,7 @@ class FairCredit:
             transactions = Transactions.query.filter(Transactions.date_time >= last_interest_payment.date_time).order_by(Transactions.date_time).all()
 
         interest = 0.0
-        apr_per_day = FairCredit.apr/365
+        apr_per_day = self.apr/365
         now = datetime.today()
 
         if len(transactions):

@@ -1,6 +1,5 @@
 import unittest
-from src.models import Person
-import requests
+from flask import requests
 
 class BasicTestCase(unittest.TestCase):
 
@@ -15,3 +14,7 @@ class BasicTestCase(unittest.TestCase):
         json_dict = r.json()
         self.assertEqual(json_dict['Status'],'Success')
         self.assertIsNotNone(json_dict["Data"])
+
+
+if __name__ == '__main__':
+    unittest.main()
