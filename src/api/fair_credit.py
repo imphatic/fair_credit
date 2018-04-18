@@ -53,7 +53,7 @@ class FairCredit:
             return {}
 
         except exc.SQLAlchemyError:
-            return {'errors': 'Database error.'}
+            raise
 
 
     def edit_transaction(self, transaction_id, updates):
@@ -83,7 +83,7 @@ class FairCredit:
             return {}
 
         except exc.SQLAlchemyError:
-            return {'errors': 'Database error.'}
+            raise
 
     def delete_transaction(transaction_id):
         """
@@ -99,7 +99,7 @@ class FairCredit:
             return {}
 
         except exc.SQLAlchemyError:
-            return {'errors': 'Database error.'}
+            raise
 
     def balance_after_interest_payment(self, amount):
         """
