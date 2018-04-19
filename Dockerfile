@@ -9,4 +9,5 @@ RUN pip install pipenv
 RUN pipenv install --system
 # RUN pip install --no-cache-dir -r requirements.txt
 ENV FLASK_ENV="docker"
+ENV TZ=America/Los_Angeles
 EXPOSE 5000

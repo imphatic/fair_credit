@@ -3,3 +3,6 @@ body {
     margin: 30px 15%;
 }
 
+.hide {
+    display:none
+}

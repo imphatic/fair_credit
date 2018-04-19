@@ -7,23 +7,38 @@
 
 # Database Schema
 
-| transactions     | |
+| lines_of_credit     | |
 ------------------ | --- |
 | id               | |
-| type             | 1 = debit, 2 = credit, 3 = interest payment |
-| amount           | The amount credited or debited from the balance. |
-| balance          | YTD balance of the line of credit, without interest. |
-| date_time        | Date of the transaction. |
+| name             | display name |
+| credit_limit     | maximum credit for this account |
+
+
+| transactions       | |
+------------------   | --- |
+| id                 | |
+| credit_line_id     | id relating to the lines_of_credit table |
+| type               | 1 = debit, 2 = credit, 3 = interest payment |
+| amount             | The amount credited or debited from the balance |
+| balance            | YTD balance of the line of credit, without interest |
+| date_time          | Date of the transaction |
 
 
 ```
 CREATE TABLE transactions (
-    id          serial CONSTRAINT firstkey PRIMARY KEY,
-    type        INTEGER NOT NULL,
-    amount      DECIMAL NOT NULL,
-    balance     DECIMAL NOT NULL,
-    date_time   TIMESTAMP NOT NULL
-)
+    id                  serial CONSTRAINT primkey PRIMARY KEY,
+    credit_line_id      INTEGER NOT NULL,
+    type                INTEGER NOT NULL,
+    amount              DECIMAL NOT NULL,
+    balance             DECIMAL NOT NULL,
+    date_time           TIMESTAMP NOT NULL
+);
+
+CREATE TABLE credit_lines (
+    id                serial CONSTRAINT firstkey PRIMARY KEY,
+    name              VARCHAR NOT NULL,
+    credit_limit      DECIMAL NOT NULL
+);
 ```
 
 

@@ -1,15 +1,45 @@
 from src import app, db
 from sqlalchemy import exc
-from src.models import Transactions
+from src.models import Transactions, CreditLines
 from datetime import datetime
 from time import time
+from src.api.exceptions import CreditLimitExceededError
 
 
 class FairCredit:
 
-    def __init__(self, apr):
+    def __init__(self, apr, credit_line_id=None):
         self.apr = apr
+        self.credit_line_id = credit_line_id
+        self.credit_limit = None
         pass
+
+    @staticmethod
+    def get_credit_lines():
+        """
+        Get all credit lines
+        :return: dict of credit lines
+        """
+        credit_lines = CreditLines.query.order_by(CreditLines.name).all()
+        return [row.to_dict() for row in credit_lines]
+
+    @staticmethod
+    def new_credit_line(name, credit_limit):
+        """
+        Create a new line of credit
+        :param name: used only as a label
+        :param credit_limit: the max amount that can be drawn
+        :return:
+        """
+        credit_line = CreditLines(name, credit_limit)
+        db.session.add(credit_line)
+
+        try:
+            db.session.commit()
+            return {'id': credit_line.id}
+
+        except exc.SQLAlchemyError:
+            raise
 
     @staticmethod
     def get_transaction(transaction_id):
@@ -36,25 +66,28 @@ class FairCredit:
 
         balance = self.get_balance()
 
-        if transaction_type == 1:
-            balance -= amount
-        elif transaction_type == 2:
-            balance += amount
-        elif transaction_type == 3:
-            balance = self.balance_after_interest_payment(amount)
-
-        date_time = datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S') if date_time is None else date_time
-
-        transaction = Transactions(transaction_type, amount, balance, date_time)
-        db.session.add(transaction)
-
         try:
+            if transaction_type == 1:
+                balance -= amount
+                if abs(balance) > self.get_credit_limit():
+                    raise CreditLimitExceededError(amount, self.get_credit_limit())
+            elif transaction_type == 2:
+                balance += amount
+            elif transaction_type == 3:
+                balance = self.balance_after_interest_payment(amount)
+
+            date_time = datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S') if date_time is None else date_time
+
+            transaction = Transactions(self.credit_line_id, transaction_type, amount, balance, date_time)
+            db.session.add(transaction)
+
             db.session.commit()
             return {}
 
         except exc.SQLAlchemyError:
             raise
-
+        except CreditLimitExceededError:
+            raise
 
     def edit_transaction(self, transaction_id, updates):
         """
@@ -85,6 +118,7 @@ class FairCredit:
         except exc.SQLAlchemyError:
             raise
 
+    @staticmethod
     def delete_transaction(transaction_id):
         """
         Remove a transaction
@@ -123,7 +157,9 @@ class FairCredit:
         """
 
         # get the most recent transaction
-        transaction = Transactions.query.order_by(Transactions.date_time.desc()).first()
+        transaction = Transactions.query\
+            .filter(Transactions.credit_line_id == self.credit_line_id)\
+            .order_by(Transactions.date_time.desc()).first()
 
         if transaction is None:
             balance = 0
@@ -139,40 +175,52 @@ class FairCredit:
         """
 
         # Find the last interest payment (if it exists)
-        last_interest_payment = Transactions.query.filter(Transactions.type == 3).order_by(Transactions.date_time.desc()).first()
+        last_interest_payment = Transactions.query\
+            .filter(Transactions.credit_line_id == self.credit_line_id, Transactions.type == 3)\
+            .order_by(Transactions.date_time.desc()).first()
 
         if last_interest_payment is None:
             # get all transactions
-            transactions = Transactions.query.order_by(Transactions.date_time).all()
+            transactions = Transactions.query\
+                .filter(Transactions.credit_line_id == self.credit_line_id)\
+                .order_by(Transactions.date_time).all()
         else:
             # get all transactions past the latest interest payment
-            transactions = Transactions.query.filter(Transactions.date_time >= last_interest_payment.date_time).order_by(Transactions.date_time).all()
+            transactions = Transactions.query\
+                .filter(Transactions.credit_line_id == self.credit_line_id, Transactions.date_time >= last_interest_payment.date_time)\
+                .order_by(Transactions.date_time).all()
 
         interest = 0.0
         apr_per_day = self.apr/365
         now = datetime.today()
 
         if len(transactions):
-            if len(transactions) == 1:
-                # for one transaction we just get the difference between that transaction and today
-                transaction = next(iter(transactions))
-                delta = now - transaction.date_time
-                interest = (delta.days * apr_per_day) * transaction.balance
-            else:
-                for i, transaction in enumerate(transactions):
-                    next_transaction = transactions[i + 1] if i + 1 < len(transactions) else None
-                    day1 = transaction.date_time
-                    day2 = next_transaction.date_time if next_transaction else now
+            for i, transaction in enumerate(transactions):
+                next_transaction = transactions[i + 1] if i + 1 < len(transactions) else None
+                day1 = transaction.date_time
+                day2 = next_transaction.date_time if next_transaction else now
 
-                    delta = day1 - day2
-                    interest += (delta.days * apr_per_day) * transaction.balance
+                delta = day1 - day2
+                interest += (delta.days * apr_per_day) * transaction.balance
 
         return float(interest)
 
+    def get_credit_limit(self):
+        """
+        get the credit limit of the current instance
+        :return: the credit limit
+        """
+        if not self.credit_limit:
+            credit_line = CreditLines.query.get(self.credit_line_id)
+            self.credit_limit = credit_line.credit_limit
+
+        return self.credit_limit
+
     @staticmethod
-    def get_ledger(date_start, date_end):
+    def get_ledger(credit_line_id, date_start, date_end):
         """
         Get transactions
+        :param credit_line_id: of the ledger you wish to retrieve
         :param date_start: beginning date range to include in transaction list
         :param date_end: ending date range to include in transactions list
         :return: dict of transactions
@@ -181,7 +229,9 @@ class FairCredit:
         date_start += ' 00:00:00'
         date_end += ' 11:59:59'
 
-        ledger = Transactions.query.filter(Transactions.date_time >= date_start, Transactions.date_time <= date_end)\
-            .order_by(Transactions.date_time.desc()).all()
+        ledger = Transactions.query.filter(Transactions.credit_line_id == credit_line_id,
+                                           Transactions.date_time >= date_start,
+                                           Transactions.date_time <= date_end)\
+                                           .order_by(Transactions.date_time.desc()).all()
 
         return [row.to_dict() for row in ledger]
